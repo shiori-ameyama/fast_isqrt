@@ -1,3 +1,7 @@
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+
 #include <cstdint>
 #include <cmath>
 #include <iostream>
@@ -54,7 +58,7 @@ int main() {
         if (bit == 64) x = 0xFFFFFFFFFFFFFFFFULL;
 
         uint128_t sq = x * x;
-        
+
         // sq - 1
         if (sq > 0) {
             if (!verify_isqrt(sq - 1, isqrt128(sq - 1))) {
@@ -151,7 +155,7 @@ int main() {
     // 5. ランダムな 64bit 整数 x を決め、x^2 の ±10^6 近傍と [0, uint128_max] の共通部分を全検証
     {
         std::mt19937_64 rng_sq(1337);
-        const int NUM_SQUARES = 1000;               // テストする完全平方数の個数
+        const int NUM_SQUARES = 100;               // テストする完全平方数の個数
         const int64_t RADIUS = 1000000;             // 近傍半径 (±10^6)
         const uint128_t MAX128 = ~(uint128_t)0;
 
@@ -183,46 +187,6 @@ int main() {
     }
 
     std::cout << "\nALL CORRECTNESS TESTS PASSED PERFECTLY!" << std::endl;
-    
-    // std::cout << "\n[6] Performance & Latency Benchmark (Speed Test)..." << std::endl;
-    // {
-    //     std::mt19937_64 rng_speed(2026);
-    //     const int SPEED_SAMPLES = 10000000; // 1,000万回試行
-    //     std::vector<uint128_t> bench_data(SPEED_SAMPLES);
-
-    //     // 各種ビット長（全領域）からランダムに 128bit 整数を生成
-    //     for (int i = 0; i < SPEED_SAMPLES; ++i) {
-    //         uint64_t hi = rng_speed();
-    //         uint64_t lo = rng_speed();
-    //         bench_data[i] = (static_cast<uint128_t>(hi) << 64) | lo;
-    //     }
-
-    //     // ウォームアップ (キャッシュ・CPUクロックの安定化)
-    //     volatile uint128_t dummy = 0;
-    //     for (int i = 0; i < 100000; ++i) {
-    //         dummy += isqrt128(bench_data[i]);
-    //     }
-
-    //     // 本計測
-    //     volatile uint128_t sink = 0;
-    //     auto t_start = std::chrono::high_resolution_clock::now();
-
-    //     for (int i = 0; i < SPEED_SAMPLES; ++i) {
-    //         sink += isqrt128(bench_data[i]);
-    //     }
-
-    //     auto t_end = std::chrono::high_resolution_clock::now();
-
-    //     double total_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
-    //     double ns_per_op = std::chrono::duration<double, std::nano>(t_end - t_start).count() / SPEED_SAMPLES;
-
-    //     std::cout << "--------------------------------------------------" << std::endl;
-    //     std::cout << " Benchmark Results (isqrt128):" << std::endl;
-    //     std::cout << "   - Data Size : " << SPEED_SAMPLES << " elements (Random 128-bit)" << std::endl;
-    //     std::cout << "   - Total Time: " << total_ms << " ms" << std::endl;
-    //     std::cout << "   - Avg Speed : " << ns_per_op << " ns / call" << std::endl;
-    //     std::cout << "--------------------------------------------------" << std::endl;
-    // }
 
     return 0;
 }

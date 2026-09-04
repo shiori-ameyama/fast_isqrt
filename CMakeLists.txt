@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.25)
 project(fast_isqrt LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # -----------------------------------------------------------------------------
 # Compiler Info Output
@@ -29,16 +30,23 @@ option(BUILD_BENCHMARKS "Build benchmark executable" OFF)
 # 2. テストのビルド設定
 if(BUILD_TESTS)
     enable_testing()
-    add_executable(test_fast_isqrt tests/test_fast_isqrt.cpp)
-    target_link_libraries(test_fast_isqrt PRIVATE fast_isqrt)
-    
-    # GCC/Clang 向けフラグ (UCRT64 含む)
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(test_fast_isqrt PRIVATE -Wall -Wextra -O2)
-    endif()
 
-    add_test(NAME test_fast_isqrt COMMAND test_fast_isqrt)
-    set_tests_properties(test_fast_isqrt PROPERTIES FORCE_OUTPUT_ON_FAILURE ON)
+    set(TEST_TARGETS
+        test_fast_isqrt
+        test_is_perfect_square
+    )
+
+    foreach(target ${TEST_TARGETS})
+        add_executable(${target} tests/${target}.cpp)
+        target_link_libraries(${target} PRIVATE fast_isqrt)
+
+        if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+            target_compile_options(${target} PRIVATE -Wall -Wextra -O2)
+        endif()
+
+        add_test(NAME ${target} COMMAND ${target})
+        set_tests_properties(${target} PROPERTIES FORCE_OUTPUT_ON_FAILURE ON)
+    endforeach()
 endif()
 
 # 3. ベンチマークのビルド設定
